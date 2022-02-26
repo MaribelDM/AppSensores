@@ -10,7 +10,7 @@ public class TemperaturaController {
 	
 	@GetMapping
 	public float getTemperatura() {
-		return 0;
+		return (Float) null;
 	}
 	
 }
