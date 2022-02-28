@@ -1,8 +1,12 @@
 package com.microservicio.app.services.implement;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,23 +19,16 @@ import com.microservicio.app.services.HumedadService;
 @Service
 public class HumedadServiceImpl implements HumedadService {
 
+	Logger logger = LoggerFactory.getLogger(HumedadServiceImpl.class);
+	
 	@Autowired
 	private HumedadRepository humedadRepository ;
 	
 	@Override
 	public List<HumedadOut> findAll() {
-		List <HumedadOut> humedadesOut = new ArrayList<HumedadOut>();
 		List <Humedad> humedades = (List<Humedad>) humedadRepository.findAllByOrderByFecha();
-		for(int i = 0; i < humedades.size(); i++) {
-			Humedad humedad = humedades.get(i);
-			
-			HumedadOut humedadOut = new HumedadOut() ;
-			if(humedad != null) {
-				humedadOut.setFecha(humedad.getFecha());
-				humedadOut.setValor(humedad.getValor());
-			}
-			humedadesOut.add(humedadOut);
-		}
+		List <HumedadOut> humedadesOut = mapearHumedades(humedades);
+		
 		return humedadesOut;
 	}
 
@@ -40,7 +37,7 @@ public class HumedadServiceImpl implements HumedadService {
 		List<Humedad> humedades = (List<Humedad>) humedadRepository.findAll();
 		Humedad humedad = humedades.get(humedades.size()-1);
 
-		return HumedadOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha()).build();
+		return HumedadOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha().toString()).build();
 	}
 
 	@Override
@@ -78,5 +75,46 @@ public class HumedadServiceImpl implements HumedadService {
 		
 		return HumedadEstadistica.builder().media(media).valorMax(max).valorMin(min).build();
 	}
+
+	@Override
+	public List<HumedadOut> encontrarHumedades(String startDate, String endDate) {
+		List<HumedadOut> humedadesOut = new ArrayList<>();
+		try {
+		LocalDateTime startDateConvert =  formatearFecha(startDate);
+		LocalDateTime endDateConvert = formatearFecha(endDate);
+		List<Humedad> humedades = humedadRepository.findByFechaBetween(startDateConvert, endDateConvert);
+		humedadesOut = mapearHumedades(humedades);
+		}catch (Exception e) {
+			logger.error("Error al recoger humedades de base de datos", e);
+			throw new InternalError();
+		}
+		return humedadesOut;
+	}
+	
+	private List<HumedadOut> mapearHumedades(List<Humedad> humedades) {
+		List<HumedadOut> humedadesOut = new ArrayList<>();
+		for(int i = 0; i < humedades.size(); i++) {
+			Humedad humedad = humedades.get(i);
+			
+			HumedadOut humedadOut = new HumedadOut() ;
+			if(humedad != null) {
+				humedadOut.setFecha(humedad.getFecha().toString());
+				humedadOut.setValor(humedad.getValor());
+			}
+			humedadesOut.add(humedadOut);
+		}
+		return humedadesOut;
+	}
+
+	private static LocalDateTime formatearFecha(String fecha)
+    {
+
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    	LocalDateTime localDate = LocalDateTime.parse(fecha, formatter);
+    	return localDate;
+        
+		
+    }
 	
 }

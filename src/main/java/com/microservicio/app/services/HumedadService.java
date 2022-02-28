@@ -14,4 +14,6 @@ public interface HumedadService {
 	public String eliminar();
 	
 	public HumedadEstadistica media();
+
+	public List<HumedadOut> encontrarHumedades(String startDate, String endDate);
 }

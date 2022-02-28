@@ -45,4 +45,10 @@ public class HumedadController {
 		return service.media();
 	}
 	
+	@GetMapping("/humedades/{startDate}/{endDate}")
+	public List<HumedadOut> encontrarHumedades(String startDate, String endDate){
+		
+		return service.encontrarHumedades(startDate, endDate);
+	}
+	
 }

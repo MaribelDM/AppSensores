@@ -1,12 +1,19 @@
 package com.microservicio.app.entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name="humedades")
+@Setter
+@Getter
 public class Humedad {
 
 	@Id
@@ -16,7 +23,7 @@ public class Humedad {
 	private float valor;
 	
 	@Column
-	private String fecha;
+	private LocalDateTime fecha;
 	
 	public float getValor() {
 		return valor;
@@ -25,14 +32,5 @@ public class Humedad {
 	public void setValor(float valor) {
 		this.valor = valor;
 	}
-
-	public String getFecha() {
-		return fecha;
-	}
-
-	public void setFecha(String fecha) {
-		this.fecha = fecha;
-	}
-
 	
 }
