@@ -46,9 +46,9 @@ public class HumedadController {
 	}
 	
 	@GetMapping("/humedades/{startDate}/{endDate}")
-	public List<HumedadOut> encontrarHumedades(String startDate, String endDate){
+	public List<HumedadOut> humedadesPorFecha(String startDate, String endDate){
 		
-		return service.encontrarHumedades(startDate, endDate);
+		return service.humedadesPorFecha(startDate, endDate);
 	}
 	
 }

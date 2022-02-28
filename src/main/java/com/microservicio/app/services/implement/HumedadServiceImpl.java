@@ -77,7 +77,7 @@ public class HumedadServiceImpl implements HumedadService {
 	}
 
 	@Override
-	public List<HumedadOut> encontrarHumedades(String startDate, String endDate) {
+	public List<HumedadOut> humedadesPorFecha(String startDate, String endDate) {
 		List<HumedadOut> humedadesOut = new ArrayList<>();
 		try {
 		LocalDateTime startDateConvert =  formatearFecha(startDate);

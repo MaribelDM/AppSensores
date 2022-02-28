@@ -15,5 +15,5 @@ public interface HumedadService {
 	
 	public HumedadEstadistica media();
 
-	public List<HumedadOut> encontrarHumedades(String startDate, String endDate);
+	public List<HumedadOut> humedadesPorFecha(String startDate, String endDate);
 }
