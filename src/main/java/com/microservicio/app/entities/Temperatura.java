@@ -1,5 +1,7 @@
 package com.microservicio.app.entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,5 +25,5 @@ public class Temperatura {
 	private float valor; 
 	
 	@Column
-	private float fecha; 
+	private LocalDateTime fecha;
 }

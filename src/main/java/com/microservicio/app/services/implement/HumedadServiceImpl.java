@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.microservicio.app.entities.Humedad;
 import com.microservicio.app.out.HumedadEstadistica;
-import com.microservicio.app.out.HumedadOut;
+import com.microservicio.app.out.HumedadesOut;
 import com.microservicio.app.repositories.HumedadRepository;
 import com.microservicio.app.services.HumedadService;
 
@@ -25,30 +25,41 @@ public class HumedadServiceImpl implements HumedadService {
 	private HumedadRepository humedadRepository ;
 	
 	@Override
-	public List<HumedadOut> findAll() {
-		List <Humedad> humedades = (List<Humedad>) humedadRepository.findAllByOrderByFecha();
-		List <HumedadOut> humedadesOut = mapearHumedades(humedades);
+	public List<HumedadesOut> findAll(String name) {
+		List <Humedad> humedades = new ArrayList<>();
+		if(name != null) {
+		 humedades = humedadRepository.findByNameOrderByFecha(name);
+		}else {
+			humedades = humedadRepository.findAllByOrderByFecha();
+		}
+		List <HumedadesOut> humedadesOut = mapearHumedades(humedades);
 		
 		return humedadesOut;
 	}
 
 	@Override
-	public HumedadOut findLast() {
+	public HumedadesOut findLast() {
 		List<Humedad> humedades = (List<Humedad>) humedadRepository.findAll();
 		Humedad humedad = humedades.get(humedades.size()-1);
+		
+		
 
-		return HumedadOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha().toString()).build();
+		return HumedadesOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha().toString()).build();
 	}
 
 	@Override
-	public String eliminar() {
+	public String eliminar(String date) {
 		String salida ="No se ha podido borrar el historial de humedades";
-		humedadRepository.deleteAll();
-		List<Humedad> humedades = (List<Humedad>) humedadRepository.findAll();
-		if(humedades.isEmpty()) {
+		Integer tamañoInicial = ((List<Humedad>) humedadRepository.findAll()).size();
+		LocalDateTime startDateConvert =  formatearFecha("2022-05-07 14:15:00");
+		LocalDateTime endDateConvert = formatearFecha("2022-05-07 14:16:00");
+		List<Humedad> humedadesABorrar = humedadRepository.findByFechaBetween(startDateConvert, endDateConvert);
+		for(Humedad humedad: humedadesABorrar ) {
+			humedadRepository.deleteById(humedad.getId());
+		}
+		Integer tamañoFinal = ((List<Humedad>) humedadRepository.findAll()).size();
+		if(tamañoInicial > tamañoFinal) {
 			salida ="ÉXITO al borrar el historial";
-		}else if(humedades.size() == 1) {
-			salida = "ÉXITO al borrar, actualizada nueva humedad";
 		}
 		return salida;
 	}
@@ -77,8 +88,8 @@ public class HumedadServiceImpl implements HumedadService {
 	}
 
 	@Override
-	public List<HumedadOut> humedadesPorFecha(String startDate, String endDate) {
-		List<HumedadOut> humedadesOut = new ArrayList<>();
+	public List<HumedadesOut> humedadesPorFecha(String startDate, String endDate) {
+		List<HumedadesOut> humedadesOut = new ArrayList<>();
 		try {
 		LocalDateTime startDateConvert =  formatearFecha(startDate);
 		LocalDateTime endDateConvert = formatearFecha(endDate);
@@ -91,12 +102,12 @@ public class HumedadServiceImpl implements HumedadService {
 		return humedadesOut;
 	}
 	
-	private List<HumedadOut> mapearHumedades(List<Humedad> humedades) {
-		List<HumedadOut> humedadesOut = new ArrayList<>();
+	private List<HumedadesOut> mapearHumedades(List<Humedad> humedades) {
+		List<HumedadesOut> humedadesOut = new ArrayList<>();
 		for(int i = 0; i < humedades.size(); i++) {
 			Humedad humedad = humedades.get(i);
 			
-			HumedadOut humedadOut = new HumedadOut() ;
+			HumedadesOut humedadOut = new HumedadesOut() ;
 			if(humedad != null) {
 				humedadOut.setFecha(humedad.getFecha().toString());
 				humedadOut.setValor(humedad.getValor());

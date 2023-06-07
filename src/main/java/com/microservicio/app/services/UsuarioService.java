@@ -4,7 +4,7 @@ import com.microservicio.app.out.InicioSesion;
 
 public interface UsuarioService {
 
-	public String registrarUsuario(String nombre, String contraseña);
+	public void registrarUsuario(String nombre, String contraseña) throws Exception;
 	
 	public InicioSesion iniciarSesion(String nombre, String contraseña);
 }

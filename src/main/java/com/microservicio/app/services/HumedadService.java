@@ -3,17 +3,17 @@ package com.microservicio.app.services;
 import java.util.List;
 
 import com.microservicio.app.out.HumedadEstadistica;
-import com.microservicio.app.out.HumedadOut;
+import com.microservicio.app.out.HumedadesOut;
 
 public interface HumedadService {
 	
-	public List<HumedadOut> findAll();
+	public List<HumedadesOut> findAll(String name);
 
-	public HumedadOut findLast();
+	public HumedadesOut findLast();
 	
-	public String eliminar();
+	public String eliminar(String date);
 	
 	public HumedadEstadistica media();
 
-	public List<HumedadOut> humedadesPorFecha(String startDate, String endDate);
+	public List<HumedadesOut> humedadesPorFecha(String startDate, String endDate);
 }

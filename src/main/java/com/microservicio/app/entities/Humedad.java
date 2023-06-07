@@ -25,12 +25,10 @@ public class Humedad {
 	@Column
 	private LocalDateTime fecha;
 	
-	public float getValor() {
-		return valor;
-	}
-
-	public void setValor(float valor) {
-		this.valor = valor;
-	}
+	@Column
+	private Integer idUsuario;
+	
+	@Column
+	private String nombreSensor;
 	
 }
