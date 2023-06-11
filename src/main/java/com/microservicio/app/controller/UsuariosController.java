@@ -25,10 +25,9 @@ public class UsuariosController {
 	@GetMapping("/usuario")
 	@ResponseBody
 	public UsuarioOut getUsuario() {
-
 		String name = SecurityContextHolder.getContext().getAuthentication().getName();
-		Usuario usuario = usuarioRepository.findByName(name);
-		return UsuarioOut.builder().id(usuario.getId()).name(usuario.getName()).role(usuario.getRole()).build();
+		Usuario usuario = usuarioRepository.findByUsername(name);
+		return UsuarioOut.builder().id(usuario.getId()).name(usuario.getUsername()).role(usuario.getRole()).build();
 	}
-	
+
 }

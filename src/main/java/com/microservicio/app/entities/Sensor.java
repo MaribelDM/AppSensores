@@ -1,7 +1,5 @@
 package com.microservicio.app.entities;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,21 +9,21 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="humedad")
+@Table(name="sensor")
 @Setter
 @Getter
-public class Humedad {
+public class Sensor {
 
 	@Id
 	private Integer id;
 	
 	@Column
-	private float valor;
+	private String nombre;
 	
 	@Column
-	private LocalDateTime fecha;
+	private String tipo;
 	
-	@Column(name = "id_sensor")
-	private Integer idSensor;
+	@Column(name = "id_usuario")
+	private Integer idUsuario;
 	
 }

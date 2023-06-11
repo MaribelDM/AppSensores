@@ -13,7 +13,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 @Entity
 @Table(name = "temperatura") 
 public class Temperatura {
@@ -26,4 +25,7 @@ public class Temperatura {
 	
 	@Column
 	private LocalDateTime fecha;
+	
+	@Column(name = "id_sensor")
+	private Integer idSensor;
 }

@@ -10,11 +10,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import com.microservicio.app.entities.Sensor;
 import com.microservicio.app.entities.Temperatura;
+import com.microservicio.app.entities.Usuario;
+import com.microservicio.app.out.SensorOut;
 import com.microservicio.app.out.TemperaturaEstadistica;
-import com.microservicio.app.out.TemperaturaOut;
+import com.microservicio.app.out.TemperaturasOut;
+import com.microservicio.app.out.ValoresSensorOut;
+import com.microservicio.app.repositories.SensorRepository;
 import com.microservicio.app.repositories.TemperaturaRepository;
+import com.microservicio.app.repositories.UsuarioRepository;
 import com.microservicio.app.services.TemperaturaService;
 
 @Service
@@ -24,22 +31,67 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 
 	@Autowired
 	private TemperaturaRepository temperaturaRepository;
+	@Autowired
+	private SensorRepository sensorRepository ;
+	@Autowired
+	private UsuarioRepository usuarioRepository ;
 	
 	@Override
-	public List<TemperaturaOut> findAll() {
-		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
-		List<TemperaturaOut> temperaturasOut = mapearTemperaturas(temperaturas);
+	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String idUsuario, String nameSensor) {
+		List<Temperatura> temperaturas = new ArrayList<>();
+		List<SensorOut> sensoresOut = new ArrayList<>();
+		Usuario usuario = new Usuario();
+		if (!ObjectUtils.isEmpty(nameSensor) && ObjectUtils.isEmpty(idUsuario)) {
+			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "T");
+			temperaturas = temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId());
+			List<ValoresSensorOut> valores = mapValoresSensoresOut(temperaturas);
+			sensoresOut
+					.add(SensorOut.builder().valores(valores).nombre(nameSensor).estadisticas(media(valores)).build());
+			usuario = usuarioRepository.findById(sensor.getIdUsuario()).orElse(null);
+		} else if (!ObjectUtils.isEmpty(idUsuario)) {
+			sensoresOut = getSensoresUsuario(idUsuario);
+			usuario = usuarioRepository.findById(Integer.valueOf(idUsuario)).orElse(null);
+		}
 
-		return temperaturasOut;
+		return TemperaturasOut.builder().sensor(sensoresOut).usuario(usuario.getUsername()).build();
 	}
 
-	@Override
-	public TemperaturaOut findLast() {
-		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
-		Temperatura temperatura = temperaturas.get(temperaturas.size() - 1);
-
-		return TemperaturaOut.builder().valor(temperatura.getValor()).fecha(temperatura.getFecha().toString()).build();
+	private List<SensorOut> getSensoresUsuario(String idUsuario) {
+		List<Sensor> sensoresAsociados = sensorRepository.findByIdUsuarioAndTipo(Integer.valueOf(idUsuario), "T");
+		List<SensorOut> sensoresOut = new ArrayList<>();
+		
+		for (Sensor sensor : sensoresAsociados) {
+			List<ValoresSensorOut> valores = mapValoresSensoresOut(
+					temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId()));
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre()).estadisticas(media(valores))
+					.build());
+		}
+		return sensoresOut;
 	}
+
+	private List<ValoresSensorOut> mapValoresSensoresOut(List<Temperatura> temperaturas) {
+		List<ValoresSensorOut> valores = new ArrayList<>();
+		temperaturas.forEach(humedad -> valores.add(
+				ValoresSensorOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha().toString()).build()));
+		return valores;
+		
+	}
+	
+//	@Override
+//	public List<TemperaturasOut> findAll() {
+//		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
+//		List<TemperaturasOut> temperaturasOut = mapearTemperaturas(temperaturas);
+//
+//		return temperaturasOut;
+//	}
+
+//	@Override
+//	public TemperaturasOut findLast() {
+//		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
+//		Temperatura temperatura = temperaturas.get(temperaturas.size() - 1);
+//
+//		return TemperaturasOut.builder().valor(temperatura.getValor()).fecha(temperatura.getFecha().toString()).build();
+//	}
 
 	@Override
 	public String eliminar() {
@@ -54,15 +106,14 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		return salida;
 	}
 
-	@Override
-	public TemperaturaEstadistica media() {
+	public TemperaturaEstadistica media(List<ValoresSensorOut> valoresTemperaturas) {
 		float media = 0, max = 0, min = 0;
-		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
+//		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
 		// String usuarioString ;
-		max = temperaturas.get(0).getValor();
-		min = temperaturas.get(0).getValor();
-		for (int i = 0; i < temperaturas.size(); i++) {
-			Temperatura temperatura = temperaturas.get(i);
+		max = valoresTemperaturas.get(0).getValor();
+		min = valoresTemperaturas.get(0).getValor();
+		for (int i = 0; i < valoresTemperaturas.size(); i++) {
+			ValoresSensorOut temperatura = valoresTemperaturas.get(i);
 
 			media += temperatura.getValor();
 
@@ -72,41 +123,41 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 				min = temperatura.getValor();
 			}
 		}
-		media /= temperaturas.size();
+		media /= valoresTemperaturas.size();
 
 		return TemperaturaEstadistica.builder().media(media).valorMax(max).valorMin(min).build();
 	}
 
-	@Override
-	public List<TemperaturaOut> temperaturasPorFecha(String startDate, String endDate) {
-		List<TemperaturaOut> temperaturasOut = new ArrayList<>();
-		try {
-			Timestamp startDateConvert = formatearFecha(startDate);
-			Timestamp endDateConvert = formatearFecha(endDate);
-			List<Temperatura> temperaturas = temperaturaRepository.findByFechaBetween(startDateConvert,
-					endDateConvert);
-			temperaturasOut = mapearTemperaturas(temperaturas);
-		} catch (Exception e) {
-			logger.error("Error al recoger humedades de base de datos", e);
-			throw new InternalError(e);
-		}
-		return temperaturasOut;
-	}
-	
-	private List<TemperaturaOut> mapearTemperaturas(List<Temperatura> temperaturas) {
-		List<TemperaturaOut> temperaturasOut = new ArrayList<>();
-		for (int i = 0; i < temperaturas.size(); i++) {
-			Temperatura temperatura = temperaturas.get(i);
-
-			TemperaturaOut temperaturaOut = new TemperaturaOut();
-			if (temperatura != null) {
-				temperaturaOut.setFecha(temperatura.getFecha().toString());
-				temperaturaOut.setValor(temperatura.getValor());
-			}
-			temperaturasOut.add(temperaturaOut);
-		}
-		return temperaturasOut;
-	}
+//	@Override
+//	public List<TemperaturasOut> temperaturasPorFecha(String startDate, String endDate) {
+//		List<TemperaturasOut> temperaturasOut = new ArrayList<>();
+//		try {
+//			Timestamp startDateConvert = formatearFecha(startDate);
+//			Timestamp endDateConvert = formatearFecha(endDate);
+//			List<Temperatura> temperaturas = temperaturaRepository.findByFechaBetween(startDateConvert,
+//					endDateConvert);
+//			temperaturasOut = mapearTemperaturas(temperaturas);
+//		} catch (Exception e) {
+//			logger.error("Error al recoger humedades de base de datos", e);
+//			throw new InternalError(e);
+//		}
+//		return temperaturasOut;
+//	}
+//	
+//	private List<TemperaturasOut> mapearTemperaturas(List<Temperatura> temperaturas) {
+//		List<TemperaturasOut> temperaturasOut = new ArrayList<>();
+//		for (int i = 0; i < temperaturas.size(); i++) {
+//			Temperatura temperatura = temperaturas.get(i);
+//
+//			TemperaturasOut temperaturaOut = new TemperaturasOut();
+//			if (temperatura != null) {
+//				temperaturaOut.setFecha(temperatura.getFecha().toString());
+//				temperaturaOut.setValor(temperatura.getValor());
+//			}
+//			temperaturasOut.add(temperaturaOut);
+//		}
+//		return temperaturasOut;
+//	}
 
 	private static Timestamp formatearFecha(String fecha) {
 		// Transformar fecha data por caracteres en un tipo timeStamp y así poder
@@ -116,6 +167,19 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		Timestamp localDatetime = Timestamp.valueOf(localDate);
 
 		return localDatetime;
+	}
+
+	@Override
+	public List<TemperaturasOut> findAll() {
+		List<TemperaturasOut> response = new ArrayList<>();
+		List<Usuario> usuarios = usuarioRepository.findAll();
+		usuarios.forEach(usuario -> {
+			if (usuario.getRole().equals("1")) {
+				response.add(TemperaturasOut.builder().sensor(getSensoresUsuario(usuario.getId().toString()))
+						.usuario(usuario.getUsername()).build());
+			}
+		});
+		return response;
 	}
 
 }

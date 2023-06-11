@@ -6,16 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Sensor {
+public class TemperaturasOut {
 	
-	private String nombreSensor;
+	private String usuario;
 	
-	private List<ValoresSensorOut> valoresSensor;
+	private List<SensorOut> sensor;
 
 }

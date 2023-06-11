@@ -7,12 +7,14 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.microservicio.app.entities.Temperatura;
 
-public interface TemperaturaRepository extends CrudRepository<Temperatura, Long>{
+public interface TemperaturaRepository extends CrudRepository<Temperatura, Integer>{
 
 	List<Temperatura> findByOrderByFecha();
 	
 	List<Temperatura> findByFechaBetween(Timestamp startDate, Timestamp endDate);
 	
 	List<Temperatura> findByFecha(Timestamp startDate);
+	
+	List<Temperatura> findByIdSensorOrderByFecha(Integer idSensor);
 
 }

@@ -7,11 +7,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microservicio.app.out.TemperaturaEstadistica;
-import com.microservicio.app.out.TemperaturaOut;
+import com.microservicio.app.out.TemperaturasOut;
 import com.microservicio.app.services.TemperaturaService;
 
 @RestController
@@ -22,17 +20,24 @@ public class TemperaturaController {
 	@Autowired
 	private TemperaturaService service;
 	
+	@GetMapping("/temperaturas-filtrado")
+	public TemperaturasOut listar(String idUsuario, String nameSensor){
+		
+		return service.findAllTemperaturasByUserAndIdSensor(idUsuario, nameSensor);
+	}
+	
+	
 	@GetMapping("/temperaturas")
-	public List<TemperaturaOut> listar(){
+	public List<TemperaturasOut> listarAll(){
 		
 		return service.findAll();
 	}
 	
-	@GetMapping("/temperaturaActual")
-	public TemperaturaOut actual(){
-		
-		return service.findLast();
-	}
+//	@GetMapping("/temperaturaActual")
+//	public TemperaturasOut actual(){
+//		
+//		return service.findLast();
+//	}
 
 	@DeleteMapping("/eliminarHistorial")
 	public String eliminarHumedades(){
@@ -40,16 +45,16 @@ public class TemperaturaController {
 		return service.eliminar();
 	}
 	
-	@GetMapping("/media")
-	public TemperaturaEstadistica media(){
-		
-		return service.media();
-	}
-	
-	@GetMapping("/temperaturas-fecha")
-	public List<TemperaturaOut> temperaturasPorFecha(@RequestParam String startDate, @RequestParam String endDate){
-		
-		return service.temperaturasPorFecha(startDate, endDate);
-	}
+//	@GetMapping("/media")
+//	public TemperaturaEstadistica media(){
+//		
+//		return service.media();
+//	}
+//	
+//	@GetMapping("/temperaturas-fecha")
+//	public List<TemperaturasOut> temperaturasPorFecha(@RequestParam String startDate, @RequestParam String endDate){
+//		
+//		return service.temperaturasPorFecha(startDate, endDate);
+//	}
 	
 }

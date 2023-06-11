@@ -1,10 +1,10 @@
 package com.microservicio.app.repositories;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.microservicio.app.entities.Usuario;
 
-public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
-	Usuario findByName(String Name);
+	Usuario findByUsername(String username);
 }

@@ -11,12 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class HumedadEstadistica {
+	
 	private float media;
 	
 	private float valorMin;
 	
 	private float valorMax;
 	
-	private String usuario;
+	private float valorActual;
 	
 }

@@ -17,6 +17,6 @@ public class TemperaturaEstadistica {
 	
 	private float valorMax;
 	
-	private String usuario;
+	private float valorActual;
 
 }

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microservicio.app.out.HumedadEstadistica;
 import com.microservicio.app.out.HumedadesOut;
 import com.microservicio.app.services.HumedadService;
 
@@ -23,16 +22,21 @@ public class HumedadController {
 	@Autowired
 	private HumedadService service;
 	
-	@GetMapping("/humedades")
-	public List<HumedadesOut> listar(String name){
-		return service.findAll(name);
+	@GetMapping("/humedades-filtrado")
+	public HumedadesOut listar(String idUsuario, String nameSensor){
+		return service.findAllHumedadesByUserAndIdSensor(idUsuario, nameSensor);
 	}
 	
-	@GetMapping("/humedadActual")
-	public HumedadesOut actual(){
-		
-		return service.findLast();
+	@GetMapping("/humedades")
+	public List<HumedadesOut> listarAll(){
+		return service.findAll();
 	}
+	
+//	@GetMapping("/humedadActual")
+//	public HumedadesOut actual(){
+//		
+//		return service.findLast();
+//	}
 
 	@DeleteMapping("/eliminarDia/{date}")
 	public String eliminarHumedades(String date){
@@ -40,16 +44,16 @@ public class HumedadController {
 		return service.eliminar(date);
 	}
 	
-	@GetMapping("/media")
-	public HumedadEstadistica media(){
-		
-		return service.media();
-	}
-	
-	@GetMapping("/humedades/{startDate}/{endDate}")
-	public List<HumedadesOut> humedadesPorFecha(String startDate, String endDate){
-		
-		return service.humedadesPorFecha(startDate, endDate);
-	}
+//	@GetMapping("/media")
+//	public HumedadEstadistica media(){
+//		
+//		return service.media();
+//	}
+//	
+//	@GetMapping("/humedades/{startDate}/{endDate}")
+//	public List<HumedadesOut> humedadesPorFecha(String startDate, String endDate){
+//		
+//		return service.humedadesPorFecha(startDate, endDate);
+//	}
 	
 }

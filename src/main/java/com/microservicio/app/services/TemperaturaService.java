@@ -2,18 +2,21 @@ package com.microservicio.app.services;
 
 import java.util.List;
 
-import com.microservicio.app.out.TemperaturaEstadistica;
-import com.microservicio.app.out.TemperaturaOut;
+import com.microservicio.app.out.TemperaturasOut;
 
 public interface TemperaturaService {
 
-	public List<TemperaturaOut> findAll();
+//	public List<TemperaturasOut> findAll();
 
-	public TemperaturaOut findLast();
+//	public TemperaturasOut findLast();
 	
 	public String eliminar();
-	
-	public TemperaturaEstadistica media();
 
-	public List<TemperaturaOut> temperaturasPorFecha(String startDate, String endDate);
+	TemperaturasOut findAllTemperaturasByUserAndIdSensor(String idUsuario, String nameSensor);
+
+	public List<TemperaturasOut> findAll();
+	
+//	public TemperaturaEstadistica media();
+
+//	public List<TemperaturasOut> temperaturasPorFecha(String startDate, String endDate);
 }
