@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.microservicio.app.out.TemperaturasOut;
 import com.microservicio.app.services.TemperaturaService;
-import com.sun.istack.NotNull;
 
 import javassist.tools.web.BadHttpRequest;
 
