@@ -9,8 +9,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.microservicio.app.entities.Sensor;
 import com.microservicio.app.entities.Temperatura;
@@ -23,6 +26,8 @@ import com.microservicio.app.repositories.SensorRepository;
 import com.microservicio.app.repositories.TemperaturaRepository;
 import com.microservicio.app.repositories.UsuarioRepository;
 import com.microservicio.app.services.TemperaturaService;
+
+import javassist.tools.web.BadHttpRequest;
 
 @Service
 public class TemperaturaServiceImpl implements TemperaturaService {
@@ -37,20 +42,28 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 	private UsuarioRepository usuarioRepository ;
 	
 	@Override
-	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String idUsuario, String nameSensor) {
+	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String nameSensor, String startDate, String endDate)
+			throws BadHttpRequest {
 		List<Temperatura> temperaturas = new ArrayList<>();
 		List<SensorOut> sensoresOut = new ArrayList<>();
 		Usuario usuario = new Usuario();
-		if (!ObjectUtils.isEmpty(nameSensor) && ObjectUtils.isEmpty(idUsuario)) {
+		if (!ObjectUtils.isEmpty(nameSensor)) {
 			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "T");
-			temperaturas = temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId());
+			if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+				LocalDateTime startDateConvert = formatearFecha(startDate);
+				LocalDateTime endDateConvert = formatearFecha(endDate);
+				temperaturas = temperaturaRepository.findByIdSensorAndFechaBetween(sensor.getId(), startDateConvert,
+						endDateConvert);
+			} else {
+				temperaturas = temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId());
+			}
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(temperaturas);
 			sensoresOut
-					.add(SensorOut.builder().valores(valores).nombre(nameSensor).estadisticas(media(valores)).build());
+					.add(SensorOut.builder().valores(valores).nombre(nameSensor)
+							.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores)).build());
 			usuario = usuarioRepository.findById(sensor.getIdUsuario()).orElse(null);
-		} else if (!ObjectUtils.isEmpty(idUsuario)) {
-			sensoresOut = getSensoresUsuario(idUsuario);
-			usuario = usuarioRepository.findById(Integer.valueOf(idUsuario)).orElse(null);
+		} else {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Especificar nombre del sensor");
 		}
 
 		return TemperaturasOut.builder().sensor(sensoresOut).usuario(usuario.getUsername()).build();
@@ -159,14 +172,14 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 //		return temperaturasOut;
 //	}
 
-	private static Timestamp formatearFecha(String fecha) {
+	private static LocalDateTime formatearFecha(String fecha) {
 		// Transformar fecha data por caracteres en un tipo timeStamp y así poder
 		// realizar la busqueda en bbdd
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime localDate = LocalDateTime.parse(fecha, formatter);
-		Timestamp localDatetime = Timestamp.valueOf(localDate);
+		//Timestamp localDatetime = Timestamp.valueOf(localDate);
 
-		return localDatetime;
+		return localDate;
 	}
 
 	@Override

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.microservicio.app.out.TemperaturasOut;
 import com.microservicio.app.services.TemperaturaService;
+import com.sun.istack.NotNull;
+
+import javassist.tools.web.BadHttpRequest;
 
 @RestController
 @RequestMapping("/v1/aplicacion/temperatura")
@@ -21,9 +24,9 @@ public class TemperaturaController {
 	private TemperaturaService service;
 	
 	@GetMapping("/temperaturas-filtrado")
-	public TemperaturasOut listar(String idUsuario, String nameSensor){
+	public TemperaturasOut listar(String nameSensor, String startDate, String endDate) throws BadHttpRequest{
 		
-		return service.findAllTemperaturasByUserAndIdSensor(idUsuario, nameSensor);
+		return service.findAllTemperaturasByUserAndIdSensor(nameSensor, startDate, endDate);
 	}
 	
 	
