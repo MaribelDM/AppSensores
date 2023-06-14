@@ -35,30 +35,35 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 	@Autowired
 	private TemperaturaRepository temperaturaRepository;
 	@Autowired
-	private SensorRepository sensorRepository ;
+	private SensorRepository sensorRepository;
 	@Autowired
-	private UsuarioRepository usuarioRepository ;
-	
+	private UsuarioRepository usuarioRepository;
+
 	@Override
 	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String nameSensor, String startDate, String endDate)
 			throws BadHttpRequest {
 		List<Temperatura> temperaturas = new ArrayList<>();
 		List<SensorOut> sensoresOut = new ArrayList<>();
 		Usuario usuario = new Usuario();
+
 		if (!ObjectUtils.isEmpty(nameSensor)) {
 			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "T");
 			if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
 				LocalDateTime startDateConvert = formatearFecha(startDate);
 				LocalDateTime endDateConvert = formatearFecha(endDate);
+
+				if (endDateConvert.compareTo(startDateConvert) > 1) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+							"Solo se mostrarán datos dentro del rango de un día");
+				}
 				temperaturas = temperaturaRepository.findByIdSensorAndFechaBetween(sensor.getId(), startDateConvert,
 						endDateConvert);
 			} else {
 				temperaturas = temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId());
 			}
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(temperaturas);
-			sensoresOut
-					.add(SensorOut.builder().valores(valores).nombre(nameSensor)
-							.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores)).build());
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(nameSensor)
+					.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores)).build());
 			usuario = usuarioRepository.findById(sensor.getIdUsuario()).orElse(null);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Especificar nombre del sensor");
@@ -70,7 +75,7 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 	private List<SensorOut> getSensoresUsuario(String idUsuario) {
 		List<Sensor> sensoresAsociados = sensorRepository.findByIdUsuarioAndTipo(Integer.valueOf(idUsuario), "T");
 		List<SensorOut> sensoresOut = new ArrayList<>();
-		
+
 		for (Sensor sensor : sensoresAsociados) {
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(
 					temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId()));
@@ -85,9 +90,9 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		temperaturas.forEach(humedad -> valores.add(
 				ValoresSensorOut.builder().valor(humedad.getValor()).fecha(humedad.getFecha().toString()).build()));
 		return valores;
-		
+
 	}
-	
+
 //	@Override
 //	public List<TemperaturasOut> findAll() {
 //		List<Temperatura> temperaturas = (List<Temperatura>) temperaturaRepository.findAll();
@@ -175,7 +180,7 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		// realizar la busqueda en bbdd
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime localDate = LocalDateTime.parse(fecha, formatter);
-		//Timestamp localDatetime = Timestamp.valueOf(localDate);
+		// Timestamp localDatetime = Timestamp.valueOf(localDate);
 
 		return localDate;
 	}
