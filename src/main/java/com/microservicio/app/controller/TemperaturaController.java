@@ -23,9 +23,9 @@ public class TemperaturaController {
 	private TemperaturaService service;
 	
 	@GetMapping("/temperaturas-filtrado")
-	public TemperaturasOut listar(String nameSensor, String startDate, String endDate) throws BadHttpRequest{
+	public TemperaturasOut listar(String idSensor, String startDate, String endDate) throws BadHttpRequest{
 		
-		return service.findAllTemperaturasByUserAndIdSensor(nameSensor, startDate, endDate);
+		return service.findAllTemperaturasByUserAndIdSensor(idSensor, startDate, endDate);
 	}
 	
 	

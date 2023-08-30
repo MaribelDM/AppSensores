@@ -13,14 +13,11 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SensorOut {
+public class NotificacionesResponse {
 	
-	private String nombre;
+	private Integer idUsuario;
 	
-	private List<ValoresSensorOut> valores;
-	
-	private TemperaturaEstadistica estadisticas;
-	
-	private String mensaje; 
-	
+	private String nombreUsuario;
+
+	private List<SensorNotificacion> sensoresPendientes;
 }

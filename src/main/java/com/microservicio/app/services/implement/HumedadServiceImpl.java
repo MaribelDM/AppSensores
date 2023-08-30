@@ -45,8 +45,14 @@ public class HumedadServiceImpl implements HumedadService {
 			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "H");
 			humedades = humedadRepository.findByIdSensorOrderByFecha(sensor.getId());
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(humedades);
-			sensoresOut
-					.add(SensorOut.builder().valores(valores).nombre(nameSensor).estadisticas(media(valores)).build());
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(nameSensor)
+					.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores))
+					.mensaje(
+							valores.size() == 0
+									? "No hay valores para este sensor con identificador " + sensor.getId()
+											+ ". Compruebe que tiene sensor fisico asociado."
+									: null)
+					.build());
 			usuario = usuarioRepository.findById(sensor.getIdUsuario()).orElse(null);
 		} else if (!ObjectUtils.isEmpty(idUsuario)) {
 			sensoresOut = getSensoresUsuario(idUsuario);
@@ -63,7 +69,13 @@ public class HumedadServiceImpl implements HumedadService {
 		for (Sensor sensor : sensoresAsociados) {
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(
 					humedadRepository.findByIdSensorOrderByFecha(sensor.getId()));
-			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre()).estadisticas(media(valores))
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre())
+					.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores))
+					.mensaje(
+							valores.size() == 0
+									? "No hay valores para este sensor con identificador " + sensor.getId()
+											+ ". Compruebe que tiene sensor fisico asociado."
+									: null)
 					.build());
 		}
 		return sensoresOut;
@@ -173,7 +185,7 @@ public class HumedadServiceImpl implements HumedadService {
 		List<HumedadesOut> response = new ArrayList<>();
 		List<Usuario> usuarios = usuarioRepository.findAll();
 		usuarios.forEach(usuario -> {
-			if (usuario.getRole().equals("1")) {
+			if (usuario.getRole().equals("0")) {
 				response.add(HumedadesOut.builder().sensor(getSensoresUsuario(usuario.getId().toString()))
 						.usuario(usuario.getUsername()).build());
 			}

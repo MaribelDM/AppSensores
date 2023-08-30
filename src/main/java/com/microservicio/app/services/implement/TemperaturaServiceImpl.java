@@ -40,17 +40,21 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 	private UsuarioRepository usuarioRepository;
 
 	@Override
-	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String nameSensor, String startDate, String endDate)
+	public TemperaturasOut findAllTemperaturasByUserAndIdSensor(String idSensor, String startDate, String endDate)
 			throws BadHttpRequest {
 		List<Temperatura> temperaturas = new ArrayList<>();
 		List<SensorOut> sensoresOut = new ArrayList<>();
 		Usuario usuario = new Usuario();
-
-		if (!ObjectUtils.isEmpty(nameSensor)) {
-			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "T");
+		LocalDateTime startDateConvert = formatearFecha(startDate);
+		LocalDateTime endDateConvert = formatearFecha(endDate);
+		if(endDateConvert.isAfter(LocalDateTime.now()) || startDateConvert.isAfter(LocalDateTime.now())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Solo se mostrarán datos con fecha anterior a la actual");
+		}
+		if (!ObjectUtils.isEmpty(idSensor)) {
+			Sensor sensor = sensorRepository.findByIdAndTipo(Integer.valueOf(idSensor), "T");
 			if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
-				LocalDateTime startDateConvert = formatearFecha(startDate);
-				LocalDateTime endDateConvert = formatearFecha(endDate);
+				
 
 				if (endDateConvert.compareTo(startDateConvert) > 1) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -62,8 +66,14 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 				temperaturas = temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId());
 			}
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(temperaturas);
-			sensoresOut.add(SensorOut.builder().valores(valores).nombre(nameSensor)
-					.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores)).build());
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre())
+					.estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores))
+					.mensaje(
+							valores.size() == 0
+									? "No hay valores para este sensor con identificador " + sensor.getId()
+											+ ". Compruebe que tiene sensor fisico asociado o pruebe con otro rango de fecha."
+									: null)
+					.build());
 			usuario = usuarioRepository.findById(sensor.getIdUsuario()).orElse(null);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Especificar nombre del sensor");
@@ -79,7 +89,12 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		for (Sensor sensor : sensoresAsociados) {
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(
 					temperaturaRepository.findByIdSensorOrderByFecha(sensor.getId()));
-			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre()).estadisticas(media(valores))
+			sensoresOut.add(SensorOut.builder().valores(valores).nombre(sensor.getNombre()).estadisticas(ObjectUtils.isEmpty(valores) ? null : media(valores))
+					.mensaje(
+							valores.size() == 0
+									? "No hay valores para este sensor con identificador " + sensor.getId()
+											+ ". Compruebe que tiene sensor fisico asociado o pruebe con otro rango de fecha."
+									: null)
 					.build());
 		}
 		return sensoresOut;

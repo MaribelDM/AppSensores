@@ -16,7 +16,7 @@ public interface TemperaturaService {
 
 	public List<TemperaturasOut> findAll();
 
-	TemperaturasOut findAllTemperaturasByUserAndIdSensor(String nameSensor, String startDate, String endDate)
+	TemperaturasOut findAllTemperaturasByUserAndIdSensor(String idSensor, String startDate, String endDate)
 			throws BadHttpRequest;
 	
 //	public TemperaturaEstadistica media();

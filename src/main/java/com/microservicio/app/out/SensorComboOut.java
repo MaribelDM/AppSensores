@@ -13,4 +13,5 @@ public class SensorComboOut {
 	
 	private String nombre;
 
+	private String id;
 }
