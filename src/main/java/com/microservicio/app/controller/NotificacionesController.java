@@ -46,8 +46,8 @@ public class NotificacionesController {
 	}
 	
 	@PutMapping
-	public void actualizarNotificaciones(@RequestBody List<ActualizarNotificacionRequest> request) {
-		notificacionService.actualizarNotificaciones(request);
+	public void actualizarNotificaciones(@RequestBody List<ActualizarNotificacionRequest> request, boolean flagAdmin) {
+		notificacionService.actualizarNotificaciones(request, flagAdmin);
 	}
 	
 	@DeleteMapping

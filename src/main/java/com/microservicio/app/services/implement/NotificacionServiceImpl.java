@@ -78,16 +78,18 @@ public class NotificacionServiceImpl implements NotificacionService {
 	}
 
 	@Override
-	public void actualizarNotificaciones(List<ActualizarNotificacionRequest> request) {
-		boolean admin = usuarioRepository
-				.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getRole() == "ADMIN";
+	public void actualizarNotificaciones(List<ActualizarNotificacionRequest> request, boolean flagAdmin) {
+//		boolean admin = usuarioRepository
+//				.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getRole() == "ADMIN";
 		request.forEach(notificacion -> {
 			Notificacion notificacionEntity = notificacionRepository.findById(notificacion.getId()).orElse(null);
 			notificacionEntity.setEstado(notificacion.getEstado());
-			if (admin) {
+			if (flagAdmin) {
 				notificacionEntity.setObservacionAdmin(notificacion.getObservacion());
+				notificacionEntity.setObservacionUsuario(notificacionEntity.getObservacionUsuario());
 			} else {
 				notificacionEntity.setObservacionUsuario(notificacion.getObservacion());
+				notificacionEntity.setObservacionAdmin(notificacionEntity.getObservacionAdmin());
 			}
 			notificacionRepository.save(notificacionEntity);
 		});

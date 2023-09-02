@@ -16,7 +16,7 @@ public interface NotificacionService {
 
 	List<SensorNotificacion> obtenerMisNotificaciones(Integer[] estados);
 
-	void actualizarNotificaciones(List<ActualizarNotificacionRequest> request);
+	void actualizarNotificaciones(List<ActualizarNotificacionRequest> request, boolean flagAdmin);
 
 	void eliminarNotificaciones(Integer[] ids);
 

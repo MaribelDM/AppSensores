@@ -49,10 +49,9 @@ public class SensorServiceImpl implements SensorService {
 	}
 
 	private void registroSensor(RegistroNuevoSensorRequest nuevoSensor) {
-		// eliminar peticiones nombre de sensor igual
+		// eliminar peticiones sensor 
 		Notificacion notificacion = notificacionRepository.findById(Integer.valueOf(nuevoSensor.getIdNotificacion())).orElse(null);
-		notificacionRepository.deleteByNombreSensorAndTipoSensor(nuevoSensor.getNombreSensor(),
-				notificacion.getTipoSensor());
+		notificacionRepository.deleteById(notificacion.getId());
 		// almacenar sensor nuevo
 		Sensor sensor = sensorRepository.findByNombreAndTipoAndIdUsuario(nuevoSensor.getNombreSensor(), notificacion.getTipoSensor(), nuevoSensor.getIdUsuario());
 		if(ObjectUtils.isEmpty(sensor) && sensor == null) {
@@ -60,7 +59,7 @@ public class SensorServiceImpl implements SensorService {
 				.nombre(nuevoSensor.getNombreSensor()).tipo(notificacion.getTipoSensor()).build());
 		}else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Alguno de los sensores ya existe");
+					"El sensor con nombre "+ notificacion.getNombreSensor() +" ya existe");
 		}
 
 	}

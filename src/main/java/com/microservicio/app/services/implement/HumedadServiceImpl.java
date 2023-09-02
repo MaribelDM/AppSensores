@@ -41,7 +41,7 @@ public class HumedadServiceImpl implements HumedadService {
 
 		List<SensorOut> sensoresOut = new ArrayList<>();
 		Usuario usuario = new Usuario();
-		if (!ObjectUtils.isEmpty(nameSensor) ) {
+		if (!ObjectUtils.isEmpty(nameSensor) && ObjectUtils.isEmpty(idUsuario)) {
 			Sensor sensor = sensorRepository.findByNombreAndTipo(nameSensor, "H");
 			humedades = humedadRepository.findByIdSensorOrderByFecha(sensor.getId());
 			List<ValoresSensorOut> valores = mapValoresSensoresOut(humedades);
