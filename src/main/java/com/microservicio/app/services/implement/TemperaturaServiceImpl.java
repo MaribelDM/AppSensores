@@ -45,6 +45,7 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 		List<Temperatura> temperaturas = new ArrayList<>();
 		List<SensorOut> sensoresOut = new ArrayList<>();
 		Usuario usuario = new Usuario();
+
 		LocalDateTime startDateConvert = formatearFecha(startDate);
 		LocalDateTime endDateConvert = formatearFecha(endDate);
 		if(endDateConvert.isAfter(LocalDateTime.now()) || startDateConvert.isAfter(LocalDateTime.now())) {
@@ -55,7 +56,6 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 			Sensor sensor = sensorRepository.findByIdAndTipo(Integer.valueOf(idSensor), "T");
 			if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
 				
-
 				if (endDateConvert.compareTo(startDateConvert) > 1) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 							"Solo se mostrarán datos dentro del rango de un día");
