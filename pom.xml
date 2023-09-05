@@ -9,10 +9,10 @@
 		<version>2.5.0-M3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.microservicios</groupId>
+	<groupId>com.microservici</groupId>
 	<artifactId>app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>microservicios-aplicacion</name>
+	<name>microservicio-aplicacion</name>
 	<description>Application Spring Boot to domotic web</description>
 	<properties>
 		<java.version>1.8</java.version>
@@ -33,11 +33,11 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
+		 <dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<scope>runtime</scope>
-		</dependency>
+		</dependency> 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -98,11 +98,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-jwt</artifactId>
             <version>1.1.1.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>2.3.8</version>
         </dependency>
         
 		<dependency>

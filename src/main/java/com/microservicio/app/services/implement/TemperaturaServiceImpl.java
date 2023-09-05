@@ -26,6 +26,7 @@ import com.microservicio.app.repositories.UsuarioRepository;
 import com.microservicio.app.services.TemperaturaService;
 
 import javassist.tools.web.BadHttpRequest;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TemperaturaServiceImpl implements TemperaturaService {
@@ -56,9 +57,13 @@ public class TemperaturaServiceImpl implements TemperaturaService {
 			Sensor sensor = sensorRepository.findByIdAndTipo(Integer.valueOf(idSensor), "T");
 			if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
 				
-				if (endDateConvert.compareTo(startDateConvert) > 1) {
+				if (ChronoUnit.DAYS.between(startDateConvert, endDateConvert) > 1){//endDateConvert.compareTo(startDateConvert) > 1) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 							"Solo se mostrarán datos dentro del rango de un día");
+				}
+				if(endDateConvert.isBefore(startDateConvert)) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+							"La fecha final tiene que ser mayor que la inicial");
 				}
 				temperaturas = temperaturaRepository.findByIdSensorAndFechaBetween(sensor.getId(), startDateConvert,
 						endDateConvert);

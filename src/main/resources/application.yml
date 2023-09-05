@@ -1,24 +1,3 @@
-#spring:
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          articles-client-oidc:
-#            provider: spring
-#            client-id: client-id
-#            client-secret: client-secret
-#            authorization-grant-type: password
-#            redirect-uri: 
-#            scope: write
-#            client-name: client-id
-#          articles-client-authorization-code:
-#            provider: spring
-#            client-id: client-id
-#            client-secret: client-secret
-#            authorization-grant-type: password
-#            redirect-uri: 
-#            scope: read
-#            client-name: client-id
 
 security:
   password-token:

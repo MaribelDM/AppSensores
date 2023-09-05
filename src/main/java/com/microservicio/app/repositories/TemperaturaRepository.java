@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import com.microservicio.app.entities.Temperatura;
 
+@Repository
 public interface TemperaturaRepository extends CrudRepository<Temperatura, Integer>{
 
 	List<Temperatura> findByOrderByFecha();
